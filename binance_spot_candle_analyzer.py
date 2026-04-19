@@ -1,6 +1,7 @@
 import argparse
 import concurrent.futures
 import datetime
+import os
 import sys
 import time
 from typing import Any, Dict, List
@@ -9,7 +10,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-BASE_URL = "https://api.binance.com"
+BASE_URL = os.getenv("BINANCE_BASE_URL", "https://api.binance.com")
 
 
 def fetch_symbols(quote_assets: List[str], session: requests.Session) -> List[str]:
