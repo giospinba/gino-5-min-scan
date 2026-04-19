@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scan Results USDT - Ordinati</title>
+  <style>
+    :root {
+      --bg: #f2f6f4;
+      --card: #ffffff;
+      --text: #1b2d2a;
+      --muted: #49635f;
+      --line: #cfe0db;
+      --accent: #046c4e;
+      --accent-soft: #e8f6f1;
+      --btn: #0e7a59;
+      --btn-hover: #0b6147;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, #d9f1e8 0%, transparent 28%),
+        radial-gradient(circle at 85% 90%, #dfeef8 0%, transparent 28%),
+        var(--bg);
+      padding: 24px;
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(8, 42, 33, 0.08);
+    }
+
+    header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, #edf8f4, #e9f5fb);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 10px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: #f7fcfa;
+    }
+
+    .kpi {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .kpi .label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .kpi .value {
+      margin: 4px 0 0;
+      font-size: 20px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .table-wrap {
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      min-width: 1100px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #eff9f5;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fbfefd;
+    }
+
+    td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    td.symbol {
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    td.pct {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .tv-btn {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #fff;
+      background: var(--btn);
+      font-weight: 600;
+      font-size: 13px;
+      transition: background 120ms ease;
+    }
+
+    .tv-btn:hover {
+      background: var(--btn-hover);
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      padding: 12px 16px;
+      background: #fbfffd;
+    }
+
+    @media (max-width: 840px) {
+      body { padding: 10px; }
+      h1 { font-size: 20px; }
+      .kpis { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Scan Results USDT</h1>
+      <p class="sub">Ordinamento: range_pct% decrescente | Aggiornato: 2026-04-19 01:45:25</p>
+    </header>
+
+    <section class="kpis" aria-label="Riepilogo">
+      <article class="kpi"><p class="label">Eventi</p><p class="value">23</p></article>
+      <article class="kpi"><p class="label">Simboli unici</p><p class="value">19</p></article>
+      <article class="kpi"><p class="label">Range % min</p><p class="value">20.01</p></article>
+      <article class="kpi"><p class="label">Range % max</p><p class="value">58.06</p></article>
+    </section>
+
+    <div class="table-wrap">
+      <table aria-label="Risultati scanner USDT ordinati per percentuale">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>symbol</th>
+            <th>date</th>
+            <th>time_UTC+2</th>
+            <th>total_range</th>
+            <th>prev_close</th>
+            <th>range_pct%</th>
+            <th>TradingView</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class='num'>1</td><td class='symbol'>PARTIUSDT</td><td>2026-04-09</td><td>22:25:00</td><td class='num'>0.04900000</td><td class='num'>0.08440000</td><td class='num pct'>58.06</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:PARTIUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>2</td><td class='symbol'>STOUSDT</td><td>2026-04-02</td><td>11:30:00</td><td class='num'>0.54360000</td><td class='num'>1.44910000</td><td class='num pct'>37.51</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:STOUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>3</td><td class='symbol'>FUNUSDT</td><td>2026-04-09</td><td>08:00:00</td><td class='num'>0.00047800</td><td class='num'>0.00139000</td><td class='num pct'>34.39</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:FUNUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>4</td><td class='symbol'>WALUSDT</td><td>2026-04-16</td><td>10:25:00</td><td class='num'>0.03950000</td><td class='num'>0.11850000</td><td class='num pct'>33.33</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:WALUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>5</td><td class='symbol'>PIVXUSDT</td><td>2026-04-14</td><td>05:30:00</td><td class='num'>0.02640000</td><td class='num'>0.09160000</td><td class='num pct'>28.82</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:PIVXUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>6</td><td class='symbol'>CETUSUSDT</td><td>2026-03-30</td><td>20:00:00</td><td class='num'>0.00826000</td><td class='num'>0.02927000</td><td class='num pct'>28.22</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:CETUSUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>7</td><td class='symbol'>STOUSDT</td><td>2026-04-02</td><td>11:45:00</td><td class='num'>0.19760000</td><td class='num'>0.70060000</td><td class='num pct'>28.20</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:STOUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>8</td><td class='symbol'>FIOUSDT</td><td>2026-04-09</td><td>08:00:00</td><td class='num'>0.00167000</td><td class='num'>0.00624000</td><td class='num pct'>26.76</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:FIOUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>9</td><td class='symbol'>XPLUSDT</td><td>2026-04-02</td><td>23:10:00</td><td class='num'>0.04070000</td><td class='num'>0.15850000</td><td class='num pct'>25.68</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:XPLUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>10</td><td class='symbol'>TRUUSDT</td><td>2026-04-17</td><td>11:00:00</td><td class='num'>0.00170000</td><td class='num'>0.00700000</td><td class='num pct'>24.29</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:TRUUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>11</td><td class='symbol'>KERNELUSDT</td><td>2026-03-31</td><td>08:45:00</td><td class='num'>0.02490000</td><td class='num'>0.10600000</td><td class='num pct'>23.49</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:KERNELUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>12</td><td class='symbol'>MDTUSDT</td><td>2026-04-09</td><td>08:00:00</td><td class='num'>0.00196000</td><td class='num'>0.00847000</td><td class='num pct'>23.14</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:MDTUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>13</td><td class='symbol'>STOUSDT</td><td>2026-04-02</td><td>17:40:00</td><td class='num'>0.13100000</td><td class='num'>0.59500000</td><td class='num pct'>22.02</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:STOUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>14</td><td class='symbol'>NOMUSDT</td><td>2026-04-02</td><td>11:30:00</td><td class='num'>0.00247000</td><td class='num'>0.01131000</td><td class='num pct'>21.84</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:NOMUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>15</td><td class='symbol'>DUSDT</td><td>2026-04-02</td><td>11:20:00</td><td class='num'>0.00264000</td><td class='num'>0.01214000</td><td class='num pct'>21.75</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:DUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>16</td><td class='symbol'>SOLVUSDT</td><td>2026-04-02</td><td>17:50:00</td><td class='num'>0.00147000</td><td class='num'>0.00681000</td><td class='num pct'>21.59</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:SOLVUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>17</td><td class='symbol'>HIGHUSDT</td><td>2026-04-18</td><td>09:40:00</td><td class='num'>0.12100000</td><td class='num'>0.56300000</td><td class='num pct'>21.49</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:HIGHUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>18</td><td class='symbol'>ONTUSDT</td><td>2026-03-30</td><td>02:30:00</td><td class='num'>0.01846000</td><td class='num'>0.08950000</td><td class='num pct'>20.63</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:ONTUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>19</td><td class='symbol'>DENTUSDT</td><td>2026-04-17</td><td>11:00:00</td><td class='num'>0.00003300</td><td class='num'>0.00016000</td><td class='num pct'>20.62</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:DENTUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>20</td><td class='symbol'>STOUSDT</td><td>2026-04-02</td><td>17:45:00</td><td class='num'>0.09730000</td><td class='num'>0.47310000</td><td class='num pct'>20.57</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:STOUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>21</td><td class='symbol'>NOMUSDT</td><td>2026-04-01</td><td>15:35:00</td><td class='num'>0.00159000</td><td class='num'>0.00777000</td><td class='num pct'>20.46</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:NOMUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>22</td><td class='symbol'>BLURUSDT</td><td>2026-04-01</td><td>02:05:00</td><td class='num'>0.00472000</td><td class='num'>0.02326000</td><td class='num pct'>20.29</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:BLURUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+<tr><td class='num'>23</td><td class='symbol'>XVGUSDT</td><td>2026-04-17</td><td>08:10:00</td><td class='num'>0.00082500</td><td class='num'>0.00412200</td><td class='num pct'>20.01</td><td><a class='tv-btn' href='https://www.tradingview.com/chart/?symbol=BINANCE:XVGUSDT' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      Fonte: scan_results_usdt.csv | Range % medio: 26.22
+    </footer>
+  </div>
+</body>
+</html>
