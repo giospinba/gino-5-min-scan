@@ -5,6 +5,9 @@ __pycache__/
 # Local runtime artifacts
 scan_err*.txt
 scan_log*.txt
+scan_results*.csv
+scan_results*_readable.md
+scan_results*_sorted.html
 
 # macOS
 .DS_Store
