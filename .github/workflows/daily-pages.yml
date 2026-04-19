@@ -7,11 +7,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
+    outputs:
+      run_now: ${{ steps.time_gate.outputs.run_now }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,15 +54,20 @@ jobs:
           chmod +x scripts/daily_scan.sh
           PYTHON_BIN=python scripts/daily_scan.sh
 
-      - name: Commit and push updated page
+      - name: Upload artifact
         if: ${{ github.event_name == 'workflow_dispatch' || steps.time_gate.outputs.run_now == 'true' }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/index.html
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-          git commit -m "chore: daily USDT scan update"
-          git push
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.build.outputs.run_now == 'true' }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
