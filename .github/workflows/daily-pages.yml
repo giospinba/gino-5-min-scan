@@ -2,7 +2,8 @@ name: Daily USDT Scan Pages
 
 on:
   schedule:
-    - cron: "5 6 * * *"
+    - cron: "0 18 * * *"
+    - cron: "0 19 * * *"
   workflow_dispatch:
 
 permissions:
@@ -25,7 +26,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Time gate (run only at 20:00 Europe/Rome)
+        id: time_gate
+        run: |
+          HOUR_ROME="$(TZ=Europe/Rome date +%H)"
+          if [ "$HOUR_ROME" = "20" ]; then
+            echo "run_now=true" >> "$GITHUB_OUTPUT"
+            echo "Run enabled for 20:00 Europe/Rome"
+          else
+            echo "run_now=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping this trigger (current Europe/Rome hour: $HOUR_ROME)"
+          fi
+
       - name: Run daily scan and build page
+        if: ${{ github.event_name == 'workflow_dispatch' || steps.time_gate.outputs.run_now == 'true' }}
         env:
           BINANCE_BASE_URL: https://data-api.binance.vision
         run: |
@@ -33,6 +47,7 @@ jobs:
           PYTHON_BIN=python scripts/daily_scan.sh
 
       - name: Commit and push updated page
+        if: ${{ github.event_name == 'workflow_dispatch' || steps.time_gate.outputs.run_now == 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

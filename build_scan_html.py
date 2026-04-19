@@ -3,6 +3,7 @@ import csv
 import datetime as dt
 import html
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 
 def parse_args() -> argparse.Namespace:
@@ -39,7 +40,8 @@ def to_float(value: str, default: float = 0.0) -> float:
 def build_html(rows: list[dict[str, str]], source_name: str) -> str:
     rows_sorted = sorted(rows, key=lambda r: to_float(r.get("range_pct%", "0")), reverse=True)
     unique_symbols = len({r.get("symbol", "") for r in rows_sorted if r.get("symbol")})
-    now_local = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now_rome = dt.datetime.now(ZoneInfo("Europe/Rome"))
+    now_local = now_rome.strftime("%Y-%m-%d %H:%M:%S")
 
     min_pct = min((to_float(r.get("range_pct%", "0")) for r in rows_sorted), default=0.0)
     max_pct = max((to_float(r.get("range_pct%", "0")) for r in rows_sorted), default=0.0)
@@ -250,7 +252,7 @@ def build_html(rows: list[dict[str, str]], source_name: str) -> str:
       <p class=\"sub\">Ordinamento: range_pct% decrescente | Aggiornato: {now_local}</p>
     </header>
 
-    <section class=\"kpis\" aria-label=\"Riepilogo\">
+      <p class="sub">Ordinamento: range_pct% decrescente | Ultima scansione: {now_local} (Europe/Rome)</p>
       <article class=\"kpi\"><p class=\"label\">Eventi</p><p class=\"value\">{len(rows_sorted)}</p></article>
       <article class=\"kpi\"><p class=\"label\">Simboli unici</p><p class=\"value\">{unique_symbols}</p></article>
       <article class=\"kpi\"><p class=\"label\">Range % min</p><p class=\"value\">{min_pct:.2f}</p></article>
