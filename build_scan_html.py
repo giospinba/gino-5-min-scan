@@ -249,10 +249,10 @@ def build_html(rows: list[dict[str, str]], source_name: str) -> str:
   <div class=\"wrap\">
     <header>
       <h1>Scan Results USDT</h1>
-      <p class=\"sub\">Ordinamento: range_pct% decrescente | Aggiornato: {now_local}</p>
+      <p class=\"sub\">Ordinamento: range_pct% decrescente | Ultima scansione: {now_local} (Europe/Rome)</p>
     </header>
 
-      <p class="sub">Ordinamento: range_pct% decrescente | Ultima scansione: {now_local} (Europe/Rome)</p>
+    <section class=\"kpis\" aria-label=\"Riepilogo\">
       <article class=\"kpi\"><p class=\"label\">Eventi</p><p class=\"value\">{len(rows_sorted)}</p></article>
       <article class=\"kpi\"><p class=\"label\">Simboli unici</p><p class=\"value\">{unique_symbols}</p></article>
       <article class=\"kpi\"><p class=\"label\">Range % min</p><p class=\"value\">{min_pct:.2f}</p></article>
