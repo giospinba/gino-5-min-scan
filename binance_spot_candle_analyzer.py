@@ -24,24 +24,26 @@ def fetch_symbols(quote_assets: List[str], session: requests.Session) -> List[st
     global BASE_URL
     urls_to_try = [BASE_URL] + [u for u in _FALLBACK_BASE_URLS if u != BASE_URL]
     last_exc: Exception = RuntimeError("No Binance base URLs available")
+    successful_response = None
     for base_url in urls_to_try:
         url = f"{base_url}/api/v3/exchangeInfo"
         try:
-            response = session.get(url, timeout=20)
+            resp = session.get(url, timeout=20)
         except requests.RequestException as exc:
             last_exc = exc
             continue
-        if response.status_code == 451:
+        if resp.status_code == 451:
             last_exc = requests.exceptions.HTTPError(
-                f"451 Unavailable For Legal Reasons: {url}", response=response
+                f"451 Unavailable For Legal Reasons: {url}", response=resp
             )
             continue
-        response.raise_for_status()
+        resp.raise_for_status()
         BASE_URL = base_url
+        successful_response = resp
         break
-    else:
+    if successful_response is None:
         raise last_exc
-    data = response.json()
+    data = successful_response.json()
     symbols = []
     for sym in data.get("symbols", []):
         if sym.get("status") != "TRADING":
