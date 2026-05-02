@@ -10,13 +10,37 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-BASE_URL = os.getenv("BINANCE_BASE_URL", "https://api.binance.com")
+_FALLBACK_BASE_URLS = [
+    "https://api.binance.com",
+    "https://api1.binance.com",
+    "https://api2.binance.com",
+    "https://api3.binance.com",
+    "https://api-gcp.binance.com",
+]
+BASE_URL = os.getenv("BINANCE_BASE_URL", _FALLBACK_BASE_URLS[0])
 
 
 def fetch_symbols(quote_assets: List[str], session: requests.Session) -> List[str]:
-    url = f"{BASE_URL}/api/v3/exchangeInfo"
-    response = session.get(url, timeout=20)
-    response.raise_for_status()
+    global BASE_URL
+    urls_to_try = [BASE_URL] + [u for u in _FALLBACK_BASE_URLS if u != BASE_URL]
+    last_exc: Exception = RuntimeError("No Binance base URLs available")
+    for base_url in urls_to_try:
+        url = f"{base_url}/api/v3/exchangeInfo"
+        try:
+            response = session.get(url, timeout=20)
+        except requests.RequestException as exc:
+            last_exc = exc
+            continue
+        if response.status_code == 451:
+            last_exc = requests.exceptions.HTTPError(
+                f"451 Unavailable For Legal Reasons: {url}", response=response
+            )
+            continue
+        response.raise_for_status()
+        BASE_URL = base_url
+        break
+    else:
+        raise last_exc
     data = response.json()
     symbols = []
     for sym in data.get("symbols", []):
