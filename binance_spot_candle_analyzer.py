@@ -10,13 +10,113 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+# --- INIZIO AGGIUNTA BITGET E MARKET CAP ---
+import json
+
+def fetch_bitget_symbols(session: requests.Session, market_type: str = "spot") -> list:
+    symbols = set()
+    if market_type == "spot":
+        url = "https://api.bitget.com/api/v2/spot/public/symbols"
+        resp = session.get(url, timeout=20)
+        resp.raise_for_status()
+        data = resp.json()
+        for item in data.get("data", []):
+            s = item.get("symbol")
+            if s:
+                # Bitget spot v2: simboli tipo BTCUSDT_SPBL
+                s = s.split('_')[0]
+                symbols.add(s)
+    elif market_type == "futures":
+        url = "https://api.bitget.com/api/v2/mix/market/tickers?productType=USDT-FUTURES"
+        resp = session.get(url, timeout=20)
+        resp.raise_for_status()
+        data = resp.json()
+        for item in data.get("data", []):
+            s = item.get("symbol")
+            if s:
+                # Bitget futures v2: simboli tipo BTCUSDTUMCBL
+                # Normalizza a BTCUSDT
+                if s.endswith("UMCBL"):
+                    s = s[:-6]
+                symbols.add(s)
+    else:
+        raise ValueError("market_type deve essere 'spot' o 'futures'")
+    return sorted(symbols)
+
+def fetch_binance_symbols(quote_assets: list, session: requests.Session) -> list:
+    return fetch_symbols(quote_assets, session)
+
+def fetch_market_caps(symbols: list, session: requests.Session) -> dict:
+    # Scarica la lista completa CoinGecko (id, symbol)
+    cg_list_url = "https://api.coingecko.com/api/v3/coins/list"
+    cg_resp = session.get(cg_list_url, timeout=30)
+    cg_resp.raise_for_status()
+    cg_list = cg_resp.json()
+    # Mappa symbol (es: BTC) -> [id, ...]
+    symbol_to_ids = {}
+    for coin in cg_list:
+        sym = coin.get('symbol', '').upper()
+        if sym:
+            symbol_to_ids.setdefault(sym, []).append(coin['id'])
+
+    # Estrai base symbol (BTC) da BTCUSDT
+    base_symbols = [s[:-4].upper() if s.endswith('USDT') else s.upper() for s in symbols]
+    # Mappa simbolo a CoinGecko id (prendi il primo id disponibile)
+    symbol_to_id = {}
+    for s, base in zip(symbols, base_symbols):
+        ids = symbol_to_ids.get(base, [])
+        if ids:
+            symbol_to_id[s] = ids[0]
+    # Richiedi market cap solo per i simboli mappati
+    url = "https://api.coingecko.com/api/v3/coins/markets"
+    market_caps = {}
+    ids = list(symbol_to_id.values())
+    for i in range(0, len(ids), 250):
+        params = {
+            "vs_currency": "usd",
+            "ids": ','.join(ids[i:i+250]),
+        }
+        r = session.get(url, params=params, timeout=20)
+        if r.status_code == 200:
+            for coin in r.json():
+                # Trova tutti i simboli che mappano a questo id
+                for sym, cid in symbol_to_id.items():
+                    if cid == coin['id']:
+                        market_caps[sym] = coin.get('market_cap', 0)
+    return market_caps
+
+def get_filtered_bitget_symbols(session: requests.Session, min_market_cap=5_500_000):
+    # 1. Ottieni spot e futures Bitget
+    spot = fetch_bitget_symbols(session, "spot")
+    fut = fetch_bitget_symbols(session, "futures")
+    all_bitget = set(spot) | set(fut)
+    print(f"# Coppie Bitget totali (spot+futures): {len(all_bitget)}", file=sys.stderr)
+    # 2. Ottieni Binance spot
+    binance = set(fetch_binance_symbols(["USDT"], session))
+    print(f"# Coppie Binance spot USDT: {len(binance)}", file=sys.stderr)
+    # 3. Escludi quelle già su Binance
+    only_bitget = sorted(all_bitget - binance)
+    print(f"# Coppie Bitget esclusive: {len(only_bitget)}", file=sys.stderr)
+    # 4. Filtra per market cap
+    market_caps = fetch_market_caps(only_bitget, session)
+    mapped = [s for s in only_bitget if s in market_caps]
+    print(f"# Coppie Bitget esclusive mappate su CoinGecko: {len(mapped)}", file=sys.stderr)
+    filtered = [s for s in only_bitget if (market_caps.get(s, 0) or 0) >= min_market_cap]
+    print(f"# Coppie Bitget esclusive con market cap >= {min_market_cap}: {len(filtered)}", file=sys.stderr)
+    return filtered
+# --- FINE AGGIUNTA ---
+
 BASE_URL = os.getenv("BINANCE_BASE_URL", "https://api.binance.com")
 
 
 def fetch_symbols(quote_assets: List[str], session: requests.Session) -> List[str]:
     url = f"{BASE_URL}/api/v3/exchangeInfo"
-    response = session.get(url, timeout=20)
-    response.raise_for_status()
+    try:
+        response = session.get(url, timeout=20)
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        print(f"# Error fetching symbols: {exc}", file=sys.stderr)
+        return []
     data = response.json()
     symbols = []
     for sym in data.get("symbols", []):
@@ -238,6 +338,11 @@ def parse_args() -> argparse.Namespace:
         default=31,
         help="Numero di giorni da analizzare."
     )
+    parser.add_argument(
+        "--bitget",
+        action="store_true",
+        help="Analizza solo le coppie Bitget (spot+futures), escluse quelle già su Binance e con market cap < 5.5M."
+    )
     return parser.parse_args()
 
 
@@ -264,6 +369,12 @@ def main() -> int:
             print("# Errore: --symbol deve essere una coppia USDT (es. BTCUSDT).", file=sys.stderr)
             return 1
         symbols = [symbol]
+    elif getattr(args, "bitget", False):
+        print("# Uso solo coppie Bitget (spot+futures), escluse quelle su Binance e con market cap < 5.5M", file=sys.stderr)
+        symbols = get_filtered_bitget_symbols(session, min_market_cap=5_500_000)
+        print(f"# Simboli Bitget filtrati: {len(symbols)}", file=sys.stderr)
+        if args.max_symbols > 0:
+            symbols = symbols[: args.max_symbols]
     else:
         quote_assets = ["USDT"]
         symbols = fetch_symbols(quote_assets, session)
