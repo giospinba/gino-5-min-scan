@@ -42,38 +42,72 @@ def build_html(rows: list[dict[str, str]], source_name: str) -> str:
     unique_symbols = len({r.get("symbol", "") for r in rows_sorted if r.get("symbol")})
     now_rome = dt.datetime.now(ZoneInfo("Europe/Rome"))
     now_local = now_rome.strftime("%Y-%m-%d %H:%M:%S")
+    pct_values = [to_float(row.get("range_pct%", "0")) for row in rows_sorted]
+    min_pct = min(pct_values, default=0.0)
+    max_pct = max(pct_values, default=0.0)
+    avg_pct = sum(pct_values) / len(pct_values) if pct_values else 0.0
 
-    min_pct = min((to_float(r.get("range_pct%", "0")) for r in rows_sorted), default=0.0)
-    max_pct = max((to_float(r.get("range_pct%", "0")) for r in rows_sorted), default=0.0)
-    avg_pct = (
-        sum(to_float(r.get("range_pct%", "0")) for r in rows_sorted) / len(rows_sorted)
-        if rows_sorted
-        else 0.0
-    )
+    # Percorso file simboli precedenti
+    last_symbols_path = Path("docs/last_symbols.txt")
+    last_symbols_path.parent.mkdir(parents=True, exist_ok=True)
+    prev_symbols = set()
+    if last_symbols_path.exists():
+      with last_symbols_path.open("r", encoding="utf-8") as f:
+        prev_symbols = set(line.strip() for line in f if line.strip())
 
+    # Simboli attuali
+    current_symbols = [r.get("symbol", "") for r in rows_sorted if r.get("symbol")]
+    new_symbols = set(current_symbols) - prev_symbols
+
+    # Salva la nuova lista simboli per la prossima scansione
+    with last_symbols_path.open("w", encoding="utf-8") as f:
+      for s in current_symbols:
+        f.write(s + "\n")
+
+    # Costruisci righe tabella, nuovi in alto e evidenziati
     table_rows: list[str] = []
-    for idx, row in enumerate(rows_sorted, start=1):
-        symbol = html.escape(row.get("symbol", ""))
-        date = html.escape(row.get("date", ""))
-        time_utc2 = html.escape(row.get("time_UTC+2", ""))
-        total_range = to_float(row.get("total_range", "0"))
-        prev_close = to_float(row.get("prev_close", "0"))
-        range_pct = to_float(row.get("range_pct%", "0"))
-
-        tv_url = f"https://www.tradingview.com/chart/?symbol=BINANCE:{symbol}"
-
-        table_rows.append(
-            "<tr>"
-            f"<td class='num'>{idx}</td>"
-            f"<td class='symbol'>{symbol}</td>"
-            f"<td>{date}</td>"
-            f"<td>{time_utc2}</td>"
-            f"<td class='num'>{total_range:.8f}</td>"
-            f"<td class='num'>{prev_close:.8f}</td>"
-            f"<td class='num pct'>{range_pct:.2f}</td>"
-            f"<td><a class='tv-btn' href='{tv_url}' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td>"
-            "</tr>"
-        )
+    # Prima i nuovi simboli (evidenziati)
+    for idx, row in enumerate([r for r in rows_sorted if r.get("symbol", "") in new_symbols], start=1):
+      symbol = html.escape(row.get("symbol", ""))
+      date = html.escape(row.get("date", ""))
+      time_utc2 = html.escape(row.get("time_UTC+2", ""))
+      total_range = to_float(row.get("total_range", "0"))
+      prev_close = to_float(row.get("prev_close", "0"))
+      range_pct = to_float(row.get("range_pct%", "0"))
+      tv_url = f"https://www.tradingview.com/chart/?symbol=BINANCE:{symbol}"
+      table_rows.append(
+        "<tr class='nuovo'>"
+        f"<td class='num'>{idx}</td>"
+        f"<td class='symbol'>{symbol}</td>"
+        f"<td>{date}</td>"
+        f"<td>{time_utc2}</td>"
+        f"<td class='num'>{total_range:.8f}</td>"
+        f"<td class='num'>{prev_close:.8f}</td>"
+        f"<td class='num pct'>{range_pct:.2f}</td>"
+        f"<td><a class='tv-btn' href='{tv_url}' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td>"
+        "</tr>"
+      )
+    # Poi tutti gli altri simboli
+    for idx, row in enumerate([r for r in rows_sorted if r.get("symbol", "") not in new_symbols], start=len(new_symbols)+1):
+      symbol = html.escape(row.get("symbol", ""))
+      date = html.escape(row.get("date", ""))
+      time_utc2 = html.escape(row.get("time_UTC+2", ""))
+      total_range = to_float(row.get("total_range", "0"))
+      prev_close = to_float(row.get("prev_close", "0"))
+      range_pct = to_float(row.get("range_pct%", "0"))
+      tv_url = f"https://www.tradingview.com/chart/?symbol=BINANCE:{symbol}"
+      table_rows.append(
+        "<tr>"
+        f"<td class='num'>{idx}</td>"
+        f"<td class='symbol'>{symbol}</td>"
+        f"<td>{date}</td>"
+        f"<td>{time_utc2}</td>"
+        f"<td class='num'>{total_range:.8f}</td>"
+        f"<td class='num'>{prev_close:.8f}</td>"
+        f"<td class='num pct'>{range_pct:.2f}</td>"
+        f"<td><a class='tv-btn' href='{tv_url}' target='_blank' rel='noopener noreferrer'>Apri su TradingView</a></td>"
+        "</tr>"
+      )
 
     rows_html = "\n".join(table_rows)
 
@@ -196,6 +230,11 @@ def build_html(rows: list[dict[str, str]], source_name: str) -> str:
 
     tbody tr:nth-child(even) {{
       background: #fbfefd;
+    }}
+
+    tr.nuovo {{
+      background: #ffe066 !important;
+      font-weight: 700;
     }}
 
     td.num {{

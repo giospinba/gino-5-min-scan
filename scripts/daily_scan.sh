@@ -2,14 +2,21 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="${PYTHON_BIN:-python3}"
+
+if [[ -z "${PYTHON_BIN:-}" ]]; then
+  if [[ -x "$ROOT_DIR/.venv/bin/python" ]]; then
+    PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
+  else
+    PYTHON_BIN="python3"
+  fi
+fi
 
 cd "$ROOT_DIR"
 
 mkdir -p docs
 
 "$PYTHON_BIN" binance_spot_candle_analyzer.py \
-  --quote-assets USDT \
+  --bitget \
   --log-file scan_log_usdt.txt \
   > scan_results_usdt.csv \
   2> scan_err_usdt.txt

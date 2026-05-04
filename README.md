@@ -42,9 +42,14 @@ Per avere una pagina pubblica stabile e aggiornata ogni giorno, usa GitHub Pages
 ### 1) Primo setup (una sola volta)
 
 1. Crea un repository su GitHub e carica questi file.
-2. In GitHub apri `Settings > Pages`.
-3. In `Build and deployment`, seleziona `Source: GitHub Actions`.
-4. Avvia una prima esecuzione manuale da `Actions > Daily USDT Scan Pages > Run workflow`.
+1. In GitHub apri `Settings > Pages`.
+1. In `Build and deployment`, seleziona `Source: GitHub Actions`.
+1. Se vuoi la conferma Telegram, crea in `Settings > Secrets and variables > Actions` questi secret:
+
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
+
+1. Avvia una prima esecuzione manuale da `Actions > Daily USDT Scan Pages > Run workflow`.
 
 ### 2) URL fisso pubblico
 
@@ -61,8 +66,10 @@ La workflow esegue ogni giorno:
 - scansione USDT
 - generazione HTML ordinato con pulsanti TradingView
 - pubblicazione su GitHub Pages
+- notifica Telegram opzionale su successo o errore
 
-Orario cron attuale: `06:05 UTC`.
+Trigger cron attuali: `18:00 UTC` e `19:00 UTC`.
+La workflow pubblica solo quando l'ora reale a Roma e' `20:00`, cosi' resta corretta sia in ora legale sia in ora solare.
 
 ### 4) Esecuzione locale facoltativa
 
